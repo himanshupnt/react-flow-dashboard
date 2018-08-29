@@ -5,16 +5,27 @@ import type { AxiosPromise } from 'axios';
 
 import apiBase from '../config/apiBase';
 
-type Data = {
-  success: string,
+type Barrel = {
+  _errors: Array<string>,
+  batch_id: number,
+  last_flavor_sensor_result: string,
+  status: string,
+};
+
+type Satellite = {
+  current_telemetry_timestamp: number,
+  prev_telemetry_timestamp: number,
+  satellite_id: number,
+  barrels: Array<Barrel>,
 };
 
 const url = `${apiBase}/satellites`;
 
-const getSatellites = async (): AxiosPromise<Data> => {
+const getSatellites = async () => {
   try {
-    const result = await axios.get(url);
-    return result.data;
+    const response = await axios.get(url);
+    const data: Array<Satellite> = response.data;
+    return data;
   } catch (error) {
     throw new Error(error.message);
   }
