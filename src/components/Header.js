@@ -18,6 +18,9 @@ const styles = theme => ({
     // [theme.breakpoints.up('md')]: {
     //   width: `calc(100% - ${drawerWidth}px)`,
     // },
+    [theme.breakpoints.up('md')]: {
+      zIndex: 10000,
+    },
   },
   navIconHide: {
     [theme.breakpoints.up('md')]: {
