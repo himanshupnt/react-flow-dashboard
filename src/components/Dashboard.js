@@ -3,6 +3,8 @@ import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
+import Button from '@material-ui/core/Button';
+import Divider from '@material-ui/core/Divider';
 
 import SatelliteMini from './SatelliteMini';
 import getSatellites from '../services/getSatellites';
@@ -19,12 +21,16 @@ const styles = theme => ({
     margin: 20,
     flexGrow: 1,
   },
+  sort: {
+    margin: 15,
+  },
 });
 
 type Styles = {
   root: string,
   sat: string,
   gridRoot: string,
+  sort: string,
 };
 
 type ProvidedProps = {
@@ -52,6 +58,7 @@ type State = {
   isLoading: boolean,
   showBarrels: boolean,
   activeSatelliteId: number,
+  sortedBarrels: Array<Barrel>,
 };
 
 class Dashboard extends Component<ProvidedProps & Props, State> {
@@ -60,6 +67,7 @@ class Dashboard extends Component<ProvidedProps & Props, State> {
     isLoading: true,
     showBarrels: false,
     activeSatelliteId: -1,
+    sortedBarrels: [],
   };
 
   async componentDidMount() {
@@ -76,20 +84,17 @@ class Dashboard extends Component<ProvidedProps & Props, State> {
   }
 
   clickHandler = satelliteId => {
+    const sortedBarrels = getBarrels(this.state.satellites, satelliteId);
     this.setState({
       activeSatelliteId: satelliteId,
       showBarrels: true,
+      sortedBarrels,
     });
   };
 
   render() {
     const { classes } = this.props;
-    const {
-      satellites,
-      isLoading,
-      showBarrels,
-      activeSatelliteId,
-    } = this.state;
+    const { satellites, isLoading, showBarrels, sortedBarrels } = this.state;
 
     if (isLoading) {
       return (
@@ -133,18 +138,21 @@ class Dashboard extends Component<ProvidedProps & Props, State> {
     }
 
     if (showBarrels) {
-      const currentBarrels = satellites.filter((sat: Satellite) => {
-        return sat.satellite_id === activeSatelliteId;
-      })[0].barrels;
       return (
         <div className={classes.root}>
+          <div className={classes.sort}>
+            <Button>Sort By Status </Button>
+            <Button>Sort By Errors </Button>
+            <Button>Sort By Last Updated </Button>
+          </div>
+          <Divider />
           <Grid
             container
             className={classes.gridRoot}
             spacing={24}
             direction="row"
           >
-            {currentBarrels.map((barrel: Barrel) => {
+            {sortedBarrels.map((barrel: Barrel) => {
               return (
                 <Grid item xs={4} key={barrel.batch_id}>
                   <BarrelCard className={classes.sat} barrel={barrel} />
@@ -157,5 +165,14 @@ class Dashboard extends Component<ProvidedProps & Props, State> {
     }
   }
 }
+
+const getBarrels = (
+  satellites: Array<Satellite>,
+  id: number
+): Array<Barrel> => {
+  return satellites.filter((sat: Satellite) => {
+    return sat.satellite_id === id;
+  })[0].barrels;
+};
 
 export default withStyles(styles)(Dashboard);
