@@ -1,18 +1,30 @@
 // @flow
 import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
+import Grid from '@material-ui/core/Grid';
 
-// import SatelliteMini from './SatelliteMini';
+import SatelliteMini from './SatelliteMini';
 import getSatellites from '../services/getSatellites';
-
+import Loader from '../components/Loader';
+import BarrelCard from '../components/BarrelCard';
 const styles = theme => ({
   root: {
     width: '100%',
+  },
+  sat: {
+    margin: 10,
+  },
+  gridRoot: {
+    margin: 20,
+    flexGrow: 1,
   },
 });
 
 type Styles = {
   root: string,
+  sat: string,
+  gridRoot: string,
 };
 
 type ProvidedProps = {
@@ -21,19 +33,128 @@ type ProvidedProps = {
 
 type Props = {};
 
-type State = {};
+type Barrel = {
+  _errors: Array<string>,
+  batch_id: number,
+  last_flavor_sensor_result: string,
+  status: string,
+};
+
+type Satellite = {
+  current_telemetry_timestamp: number,
+  prev_telemetry_timestamp: number,
+  satellite_id: number,
+  barrels: Array<Barrel>,
+};
+
+type State = {
+  satellites: Array<Satellite>,
+  isLoading: boolean,
+  showBarrels: boolean,
+  activeSatelliteId: number,
+};
 
 class Dashboard extends Component<ProvidedProps & Props, State> {
   state = {
     satellites: [],
+    isLoading: true,
+    showBarrels: false,
+    activeSatelliteId: -1,
   };
+
   async componentDidMount() {
-    const items = await getSatellites();
+    try {
+      const items = await getSatellites();
+      this.setState({
+        satellites: items,
+        isLoading: false,
+      });
+    } catch (error) {
+      this.setState({ isLoading: false });
+      alert(error.message);
+    }
   }
+
+  clickHandler = satelliteId => {
+    this.setState({
+      activeSatelliteId: satelliteId,
+      showBarrels: true,
+    });
+  };
+
   render() {
     const { classes } = this.props;
+    const {
+      satellites,
+      isLoading,
+      showBarrels,
+      activeSatelliteId,
+    } = this.state;
 
-    return <div className={classes.root}>Hello I am Dashboard!</div>;
+    if (isLoading) {
+      return (
+        <div className={classes.root}>
+          <Loader message="Fetching Satellites data.." />
+        </div>
+      );
+    }
+    if (!satellites.length && !isLoading) {
+      return (
+        <div className={classes.root}>
+          <Typography> No Active Satellites found for your account.</Typography>
+        </div>
+      );
+    }
+
+    if (!!satellites.length && !isLoading && !showBarrels) {
+      return (
+        <div className={classes.root}>
+          <Grid
+            container
+            className={classes.gridRoot}
+            spacing={24}
+            direction="row"
+          >
+            {satellites.map((sat: Satellite) => {
+              return (
+                <Grid item xs={6} key={sat.satellite_id}>
+                  <SatelliteMini
+                    className={classes.sat}
+                    satelliteId={sat.satellite_id}
+                    barrels={sat.barrels}
+                    clickHandler={this.clickHandler}
+                  />
+                </Grid>
+              );
+            })}
+          </Grid>
+        </div>
+      );
+    }
+
+    if (showBarrels) {
+      const currentBarrels = satellites.filter((sat: Satellite) => {
+        return sat.satellite_id === activeSatelliteId;
+      })[0].barrels;
+      return (
+        <div className={classes.root}>
+          <Grid
+            container
+            className={classes.gridRoot}
+            spacing={24}
+            direction="row"
+          >
+            {currentBarrels.map((barrel: Barrel) => {
+              return (
+                <Grid item xs={4} key={barrel.batch_id}>
+                  <BarrelCard className={classes.sat} barrel={barrel} />
+                </Grid>
+              );
+            })}
+          </Grid>
+        </div>
+      );
+    }
   }
 }
 
