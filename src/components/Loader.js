@@ -6,7 +6,7 @@ import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
   root: {
-    maxWidth: 150,
+    maxWidth: 300,
     marginLeft: 'auto',
     marginRight: 'auto',
     marginTop: 30,
