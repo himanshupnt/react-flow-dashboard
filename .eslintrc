@@ -1,0 +1,13 @@
+{
+  "parser": "babel-eslint",
+  "extends": ["plugin:flowtype/recommended", "react-app"],
+  "plugins": ["flowtype", "prettier"],
+  "rules": {
+    "prettier/prettier": "error"
+  },
+  "settings": {
+    "flowtype": {
+      "onlyFilesWithFlowAnnotation": false
+    }
+  }
+}
