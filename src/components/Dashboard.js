@@ -10,6 +10,8 @@ import SatelliteMini from './SatelliteMini';
 import getSatellites from '../services/getSatellites';
 import Loader from '../components/Loader';
 import BarrelCard from '../components/BarrelCard';
+import SelectionCtrl from '../components/SelectionCtrl';
+
 const styles = theme => ({
   root: {
     width: '100%',
@@ -59,6 +61,7 @@ type State = {
   showBarrels: boolean,
   activeSatelliteId: number,
   sortedBarrels: Array<Barrel>,
+  sortBy: string,
 };
 
 class Dashboard extends Component<ProvidedProps & Props, State> {
@@ -68,6 +71,7 @@ class Dashboard extends Component<ProvidedProps & Props, State> {
     showBarrels: false,
     activeSatelliteId: -1,
     sortedBarrels: [],
+    sortBy: '',
   };
 
   async componentDidMount() {
@@ -92,9 +96,26 @@ class Dashboard extends Component<ProvidedProps & Props, State> {
     });
   };
 
+  handleChange = event => {
+    this.setState({ [event.target.name]: event.target.value });
+    const sortedBarrels = getSortedBarrels(
+      this.state.sortedBarrels,
+      event.target.value
+    );
+    this.setState({
+      sortedBarrels,
+    });
+  };
+
   render() {
     const { classes } = this.props;
-    const { satellites, isLoading, showBarrels, sortedBarrels } = this.state;
+    const {
+      satellites,
+      isLoading,
+      showBarrels,
+      sortedBarrels,
+      sortBy,
+    } = this.state;
 
     if (isLoading) {
       return (
@@ -141,9 +162,10 @@ class Dashboard extends Component<ProvidedProps & Props, State> {
       return (
         <div className={classes.root}>
           <div className={classes.sort}>
-            <Button>Sort By Status </Button>
+            <SelectionCtrl sortBy={sortBy} handleChange={this.handleChange} />
+            {/* <Button>Sort By Status </Button>
             <Button>Sort By Errors </Button>
-            <Button>Sort By Last Updated </Button>
+            <Button>Sort By Last Updated </Button> */}
           </div>
           <Divider />
           <Grid
@@ -175,4 +197,16 @@ const getBarrels = (
   })[0].barrels;
 };
 
+const getSortedBarrels = (
+  barrels: Array<Barrel>,
+  sortBy: string
+): Array<Barrel> => {
+  let sorted = [];
+  if (sortBy === 'status') {
+    sorted = barrels.sort((a: Barrel, b: Barrel) => {
+      return a.status > b.status;
+    });
+  }
+  return sorted;
+};
 export default withStyles(styles)(Dashboard);
