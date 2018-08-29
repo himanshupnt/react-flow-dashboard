@@ -9,6 +9,7 @@ type _Route = {
   path: string,
   component: ComponentType<Object>,
   exact: boolean,
+  key: string,
 };
 
 const indexRoutes: Array<_Route> = [
