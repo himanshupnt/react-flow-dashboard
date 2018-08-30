@@ -1,7 +1,6 @@
 // @flow
 
 import axios from 'axios';
-import type { AxiosPromise } from 'axios';
 
 import apiBase from '../config/apiBase';
 
