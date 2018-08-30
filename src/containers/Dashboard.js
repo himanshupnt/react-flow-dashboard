@@ -1,5 +1,5 @@
 // @flow
-import React, { Component, SyntheticEvent } from 'react';
+import * as React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
@@ -63,7 +63,7 @@ type State = {
   sortBy: string,
 };
 
-class Dashboard extends Component<ProvidedProps & Props, State> {
+class Dashboard extends React.Component<ProvidedProps & Props, State> {
   state = {
     satellites: [],
     isLoading: true,
@@ -95,13 +95,12 @@ class Dashboard extends Component<ProvidedProps & Props, State> {
     });
   };
 
-  handleChange = (event: SyntheticEvent) => {
+  handleChange = event => {
     this.setState({ [event.target.name]: event.target.value });
     const sortedBarrels = getSortedBarrels(
       this.state.sortedBarrels,
       event.target.value
     );
-    console.log(sortedBarrels);
     this.setState({
       sortedBarrels,
     });
