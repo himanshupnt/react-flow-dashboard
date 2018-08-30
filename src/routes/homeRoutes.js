@@ -2,7 +2,7 @@
 import type { ComponentType } from 'react';
 
 import System from '../components/System';
-import Dashboard from '../components/Dashboard';
+import Dashboard from '../containers/Dashboard';
 
 type _Route = {
   path: string,
